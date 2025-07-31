@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Music Academy</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      color: #333;
+    }
+    header {
+      background: #1d1f27;
+      color: white;
+      padding: 1em;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: #2e303c;
+      padding: 0.5em;
+    }
+    nav button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 2em;
+    }
+    .hidden { display: none; }
+    input, textarea, select {
+      padding: 0.5em;
+      margin: 0.5em 0;
+      width: 100%;
+    }
+    button {
+      padding: 0.7em 1.2em;
+      border: none;
+      background: #1d1f27;
+      color: white;
+      cursor: pointer;
+      margin-top: 1em;
+    }
+    .card {
+      background: white;
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    footer {
+      text-align: center;
+      padding: 1em;
+      font-size: 0.8em;
+      color: #aaa;
+    }
+    .error { color: red; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Music Academy</h1>
+</header>
+
+<nav>
+  <button onclick="showPage('home')">Home</button>
+  <button onclick="showPage('jrotc')">JROTC</button>
+  <button onclick="showPage('upload')">Upload</button>
+  <button onclick="showPage('login')">Login</button>
+</nav>
+
+<div class="container">
+
+  <div id="home" class="page">
+    <h2>Welcome to Music Academy</h2>
+    <div id="videos"></div>
+  </div>
+
+  <div id="jrotc" class="page hidden">
+    <h2>JROTC Section</h2>
+    <p>Learn leadership, discipline, and teamwork. Stay tuned for events, drills, and ranks!</p>
+  </div>
+
+  <div id="upload" class="page hidden">
+    <h2>Upload Material</h2>
+    <div id="uploadArea">
+      <input type="text" id="uploadTitle" placeholder="Title" />
+      <textarea id="uploadDescription" placeholder="Description"></textarea>
+      <select id="uploadType">
+        <option value="video">Video URL</option>
+        <option value="doc">Document Link</option>
+      </select>
+      <input type="text" id="uploadLink" placeholder="Paste link here..." />
+      <button onclick="uploadMaterial()">Submit</button>
+    </div>
+  </div>
+
+  <div id="login" class="page hidden">
+    <h2 id="loginTitle">Login / Sign Up</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <div id="validation" class="error"></div>
+    <button onclick="auth()">Submit</button>
+  </div>
+
+</div>
+
+<footer>
+  &copy; 2025 Music Academy - Built for learning.
+</footer>
+
+<script>
+  let currentUser = null;
+  const ADMIN_EMAILS = ["jaycionclowers5@gmail.com", "teacher@academy.com"];
+
+  function showPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+  }
+
+  function validate(email, pass) {
+    const errors = [];
+    if (!email.includes("@")) errors.push("Invalid email format.");
+    if (pass.length < 8) errors.push("Password must be at least 8 characters.");
+    if (!/\d/.test(pass)) errors.push("Password must include a number.");
+    return errors;
+  }
+
+  function auth() {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+    const errors = validate(email, pass);
+    const valBox = document.getElementById("validation");
+
+    if (errors.length > 0) {
+      valBox.innerText = errors.join(" ");
+      return;
+    }
+
+    valBox.innerText = "";
+    currentUser = email;
+    alert("Welcome, " + email);
+    showPage("home");
+
+    if (ADMIN_EMAILS.includes(email)) {
+      document.getElementById("upload").classList.remove("hidden");
+    } else {
+      document.getElementById("upload").classList.add("hidden");
+    }
+  }
+
+  function uploadMaterial() {
+    if (!currentUser || !ADMIN_EMAILS.includes(currentUser)) {
+      alert("Access denied. Only teachers and admin can upload.");
+      return;
+    }
+
+    const title = document.getElementById("uploadTitle").value;
+    const desc = document.getElementById("uploadDescription").value;
+    const link = document.getElementById("uploadLink").value;
+    const type = document.getElementById("uploadType").value;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<h3>${title}</h3><p>${desc}</p>${
+      type === "video"
+        ? `<iframe width="100%" height="315" src="${link}" frameborder="0" allowfullscreen></iframe>`
+        : `<a href="${link}" target="_blank">View Document</a>`
+    }`;
+    document.getElementById("videos").appendChild(card);
+
+    document.getElementById("uploadTitle").value = "";
+    document.getElementById("uploadDescription").value = "";
+    document.getElementById("uploadLink").value = "";
+  }
+</script>
+
+</body>
+</html>
